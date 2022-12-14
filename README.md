@@ -1,5 +1,5 @@
-# Content Moderation for Texts (Comments, Profile descriptions)
-This repo does content moderation for text data in general. If any questions, please reach out to Data Science team (Sze Chi, Thulasiram, Chandan).
+# Content Moderation for Comments
+This repo does content moderation for text data in general
 
 # Set-up .env file for testing comment moderation in local
 There needs to be a `.env` file with following parameters.
@@ -27,7 +27,7 @@ CombineMaxCon=100
 
 SnowflakeResultsQueue=content_moderation_text_comment-results_dev
 SnowflakeProfileResultsQueue=content_moderation_text_profile-results_dev
-AiModelBucket=lomotif-datalake-dev
+AiModelBucket=datalake-dev
 ```
 
 # Additional variables for internal testing
@@ -88,41 +88,3 @@ python serve_tasks/tasks.py
 ```bash
 python serve_demo.py
 ```
-
-# More details about the output
-Example output upon sending a request to the deployment service:
-```python
-{'TEXT': "Podem comentar no meu lomotif?', ..., 'Q isso em ⚡️❤️", 'USER_ID': 36359809, 'COUNTRY': 'BR', 'EVENT_TIME': '2022-09-20 00:17:35', 'ASSET_TYPE': 'comment', 'VIDEO_ID': 'ce450a28-ee6c-46b8-a045-c68dc64eb17d', 'VIDEO_URL': '', 'MESSAGE_RECEIVE_TIME': '2022-11-24 08:21:35.110073+00:00', 'MODEL_VERSION': '1.0.0', 'TO_BE_MODERATED': False, 'MODEL_ATTRIBUTES': {'LANG': 'pt', 'IS_EMAIL': False, 'IS_URL': False, 'IS_LONG': False, 'IS_LEETSPEAK_PROFANITY': False, 'AI_PREDICTION': False, 'AI_PROBABILITY': 0.041, 'PROCESS_DURATION': 0.14, 'MODEL_DURATION': 0.62, 'PROMOTION_DURATION': 0.0, 'LEET_DURATION': 0.03, 'COMBINE_DURATION': 0.81, 'TOTAL_DURATION': 0.81, 'STATUS': 0, 'TRANSLATED_TO_EN': 'can comment on my lomotif q this in'}}
-
-{'TEXT': 'you $Uck @$$', 'USER_ID': 36359809, 'COUNTRY': 'BR', 'EVENT_TIME': '2022-09-20 00:17:35', 'ASSET_TYPE': 'profile', 'VIDEO_ID': '', 'VIDEO_URL': '', 'MESSAGE_RECEIVE_TIME': '2022-11-24 08:21:35.969893+00:00', 'MODEL_VERSION': '1.0.0', 'TO_BE_MODERATED': True, 'MODEL_ATTRIBUTES': {'LANG': 'en', 'IS_EMAIL': False, 'IS_URL': False, 'IS_LONG': False, 'IS_LEETSPEAK_PROFANITY': True, 'AI_PREDICTION': True, 'AI_PROBABILITY': 0.983, 'PROCESS_DURATION': 0.0, 'MODEL_DURATION': 0.02, 'PROMOTION_DURATION': 0.0, 'LEET_DURATION': 0.0, 'COMBINE_DURATION': 0.04, 'TOTAL_DURATION': 0.04, 'STATUS': 0, 'TRANSLATED_TO_EN': ''}}
-```
-- TEXT: Raw text sent for moderation.
-- USER_ID: UID of user who posted comment or UID of profile description
-- EVENT_TIME: action time
-- ASSET_TYPE: type of input whether it is a comment or profile description
-- VIDEO_ID: video id where comment was posted or empty string if it is profile description
-<!-- - ASSET_TYPE: "profile" for profile description and "comment" for comment text -->
-- MESSAGE_RECEIVE_TIME: UTC time where kinesis message is received by the deployment service.
-- (PROCESSS/MODEL/PROMOTION/LEET/COMBINE/TOTAL)_DURATION: duration taken in seconds. Rounded to 2 decimal places.
-- MODEL_VERSION: model version number.
-- TO_BE_MODERATED: Sent to IES for manual moderation if True, accepted by AI if False
-- LANG: language of text detected
-- IS_EMAIL: True if contains an email address
-- IS_URL: True if contains a URL website
-- IS_LONG: True if the text is very long
-- IS_LEETSPEAK_PROFANITY: True if leetspeak profanity is present
-- AI_PREDICTION: True if NSFW text detected by AI, otherwise False
-- AI_PROBABILITY: unsafe score of text in 3 decimal places
-- TRANSLATED_TO_EN: translated text if text is non-english
-<!-- - COUNTRY: As per MAIN_DB definition. -->
-<!-- - CREATION_TIME: As per MAIN_DB definition. -->
-- STATUS: 
-    - 0: Prediction successful. 
-    - 1: Processed text is of length 0 or language of text is out of scope. Defaults to TO_BE_MODERATED=True.
-    - 2: Language of text if length 0. Defaults to TO_BE_MODERATED=True.
-    - -1: Language of text is out of scope. Defaults to TO_BE_MODERATED=False.
-    - 3: Some unknown error in the model that was caught by the try...except... loop. Prediction unsucessful. Defaults to TO_BE_MODERATED=True.
-
-
-
-
